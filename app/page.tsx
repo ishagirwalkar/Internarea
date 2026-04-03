@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, MapPin, DollarSign, Clock } from 'lucide-react';
 import { useSlider } from '@/context/SliderContext';
@@ -296,6 +297,8 @@ function CategoriesSection() {
 
 // Card Component
 function Card({ item, type = 'internship' }: { item: CardItem; type?: 'internship' | 'job' }) {
+  const detailsHref = type === 'job' ? `/jobs/${item.id}` : `/internships/${item.id}`;
+
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
       {/* Tag */}
@@ -327,13 +330,13 @@ function Card({ item, type = 'internship' }: { item: CardItem; type?: 'internshi
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3">
-          <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-300 transform hover:translate-y-[-2px]">
-            Apply Now
-          </button>
-          <button className="flex-1 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-3 rounded-lg transition-colors duration-300 transform hover:translate-y-[-2px]">
+        <div>
+          <Link
+            href={detailsHref}
+            className="block w-full text-center border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-3 rounded-lg transition-colors duration-300 transform hover:translate-y-[-2px]"
+          >
             View Details
-          </button>
+          </Link>
         </div>
       </div>
     </div>
