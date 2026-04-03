@@ -15,6 +15,8 @@ export interface JobData {
   aboutCompany: string;
   companyWebsite: string;
   description: string;
+  aboutRole: string;
+  skillsRequired: string[];
   whoCanApply: string[];
   perks: string[];
   additionalInfo: string;
@@ -39,6 +41,8 @@ export const SAMPLE_JOBS: JobData[] = [
     aboutCompany: 'Google is a global technology leader focused on innovation in search, ads, cloud, and AI services.',
     companyWebsite: 'https://careers.google.com',
     description: 'Build and scale cloud services for millions of users.',
+    aboutRole: 'You will design backend systems, improve reliability across cloud services, collaborate with product and infrastructure teams, and ship performance improvements that affect millions of users globally.',
+    skillsRequired: ['Distributed systems', 'Node.js or Java', 'Cloud infrastructure', 'System design', 'API development'],
     whoCanApply: [
       'Computer Science graduates',
       '5+ years experience in backend development',
@@ -65,6 +69,8 @@ export const SAMPLE_JOBS: JobData[] = [
     aboutCompany: 'Microsoft builds productive and secure platforms for businesses and individuals worldwide.',
     companyWebsite: 'https://careers.microsoft.com',
     description: 'Define product roadmaps and work with engineering teams to deliver enterprise products.',
+    aboutRole: 'You will own feature discovery, translate customer needs into product requirements, coordinate with design and engineering, and track delivery against measurable business outcomes.',
+    skillsRequired: ['Product strategy', 'Stakeholder management', 'Roadmapping', 'Data analysis', 'Agile delivery'],
     whoCanApply: [
       'MBA or equivalent experience',
       'Product lifecycle experience',
@@ -91,6 +97,8 @@ export const SAMPLE_JOBS: JobData[] = [
     aboutCompany: 'Amazon is a leading e-commerce and cloud platform with a global customer base.',
     companyWebsite: 'https://www.amazon.jobs',
     description: 'Work on recommendation algorithms and NLP models for e-commerce personalization.',
+    aboutRole: 'You will build machine learning models, partner with engineering teams to productionize them, analyze large-scale customer behavior data, and influence experimentation strategy for personalization products.',
+    skillsRequired: ['Python', 'Machine learning', 'NLP', 'Experimentation', 'Data visualization'],
     whoCanApply: [
       'Masters/PhD in Metrics or ML',
       'Strong Python and statistical modeling skills',

@@ -13,6 +13,7 @@ export interface InternshipData {
   activelyHiring: boolean;
   aboutCompany: string;
   aboutInternship: string;
+  skillsRequired: string[];
   whoCanApply: string[];
   perks: string[];
   additionalInfo: string;
@@ -34,7 +35,8 @@ export const SAMPLE_INTERNSHIPS: InternshipData[] = [
     aboutCompany:
       'TechCorp is a leading software development firm specializing in AI-driven applications for global clients.',
     aboutInternship:
-      'Work on modern frontend features using React, TypeScript, and Tailwind in a collaborative environment.',
+      'Work on modern frontend features using React, TypeScript, and Tailwind in a collaborative environment. You will contribute to production UI components, support feature releases, and work closely with mentors on code quality and performance.',
+    skillsRequired: ['React', 'TypeScript', 'Tailwind CSS', 'JavaScript', 'Responsive design'],
     whoCanApply: [
       'Students or fresh graduates in Computer Science/IT',
       'Strong understanding of JavaScript and CSS',
@@ -64,7 +66,8 @@ export const SAMPLE_INTERNSHIPS: InternshipData[] = [
     aboutCompany:
       'Creative Studios is a digital design agency crafting user-centered products for startups and enterprises.',
     aboutInternship:
-      'Assist in wireframing, prototyping, and user testing for mobile and web projects.',
+      'Assist in wireframing, prototyping, and user testing for mobile and web projects. You will partner with designers on research synthesis, visual iterations, and polished handoff assets for engineering teams.',
+    skillsRequired: ['Figma', 'Wireframing', 'Prototyping', 'User research', 'Visual design'],
     whoCanApply: [
       'Design students with Figma/Adobe XD experience',
       'Good communication skills',
@@ -93,7 +96,8 @@ export const SAMPLE_INTERNSHIPS: InternshipData[] = [
     aboutCompany:
       'Analytics Pro provides data-driven insights for retail, healthcare, and finance enterprises.',
     aboutInternship:
-      'Work with real datasets to solve business problems using Python, pandas, and machine learning models.',
+      'Work with real datasets to solve business problems using Python, pandas, and machine learning models. You will clean datasets, build dashboards, and support model experimentation with guidance from data scientists.',
+    skillsRequired: ['Python', 'Pandas', 'Machine learning', 'Data analysis', 'Statistics'],
     whoCanApply: [
       'Statistics/Data Science students',
       'Python programming skills',
