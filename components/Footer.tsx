@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram } from 'lucide-react';
+import { Globe, MessageCircle, Send } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -328,31 +328,31 @@ export default function Footer() {
           <h4 className="text-white font-semibold text-sm mb-4">Follow Us</h4>
           <div className="flex gap-6">
             <a
-              href="https://facebook.com"
+              href="https://internarea.example.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-blue-500 transition duration-300 transform hover:scale-110"
-              aria-label="Facebook"
+              aria-label="Website"
             >
-              <Facebook size={24} />
+              <Globe size={24} />
             </a>
             <a
-              href="https://twitter.com"
+              href="https://wa.me/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-blue-400 transition duration-300 transform hover:scale-110"
-              aria-label="Twitter"
+              aria-label="Community"
             >
-              <Twitter size={24} />
+              <MessageCircle size={24} />
             </a>
             <a
-              href="https://instagram.com"
+              href="mailto:hello@internarea.example.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-pink-500 transition duration-300 transform hover:scale-110"
-              aria-label="Instagram"
+              aria-label="Email"
             >
-              <Instagram size={24} />
+              <Send size={24} />
             </a>
           </div>
         </div>
