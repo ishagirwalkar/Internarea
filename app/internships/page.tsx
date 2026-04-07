@@ -14,6 +14,8 @@ interface InternshipFilter {
   maxStipend: number;
 }
 
+const stipendFormatter = new Intl.NumberFormat('en-IN');
+
 export default function InternshipsPage() {
   const [filters, setFilters] = useState<InternshipFilter>({
     category: '',
@@ -172,8 +174,8 @@ export default function InternshipsPage() {
                         className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-blue-600"
                       />
                       <div className="flex justify-between text-xs text-gray-600 mt-2">
-                        <span>₹{filters.minStipend.toLocaleString()}</span>
-                        <span>₹{filters.maxStipend.toLocaleString()}</span>
+                        <span>₹{stipendFormatter.format(filters.minStipend)}</span>
+                        <span>₹{stipendFormatter.format(filters.maxStipend)}</span>
                       </div>
                     </div>
 
