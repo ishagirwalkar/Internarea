@@ -32,11 +32,13 @@ export default function Navbar() {
 
   const handleLogin = () => {
     setUser({
-      name: 'Alex Johnson',
-      email: 'alex@example.com',
-      image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
+      name: 'Rahul',
+      email: 'rahul@example.com',
+      image: 'https://i.pravatar.cc/160?img=12',
     });
     setIsOpen(false);
+    setIsProfileOpen(false);
+    router.push('/profile');
   };
 
   const handleLogout = () => {
@@ -48,7 +50,7 @@ export default function Navbar() {
   const handleDashboard = () => {
     setIsProfileOpen(false);
     setIsOpen(false);
-    router.push('/dashboard');
+    router.push('/profile');
   };
 
   const handleSearch = (e: React.FormEvent) => {
