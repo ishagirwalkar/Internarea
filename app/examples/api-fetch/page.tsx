@@ -1,0 +1,1 @@
+export { default } from '../../../internarea_ui/app/examples/api-fetch/page';

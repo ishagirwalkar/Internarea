@@ -1,0 +1,1 @@
+export { GET, POST } from '../../../internarea_api/app/api/application/route';

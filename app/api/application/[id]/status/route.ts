@@ -1,0 +1,1 @@
+export { PATCH } from '../../../../../internarea_api/app/api/application/[id]/status/route';

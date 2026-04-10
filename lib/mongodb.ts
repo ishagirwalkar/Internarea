@@ -1,0 +1,1 @@
+export * from '../internarea_api/lib/mongodb';

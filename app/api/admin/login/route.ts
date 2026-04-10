@@ -1,0 +1,1 @@
+export { POST } from '../../../../internarea_api/app/api/admin/login/route';
