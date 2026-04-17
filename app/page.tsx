@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { ChevronLeft, ChevronRight, MapPin, DollarSign, Clock } from 'lucide-react';
 import { useSlider } from '@/context/SliderContext';
 

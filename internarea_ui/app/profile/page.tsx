@@ -10,6 +10,7 @@ import {
   getApplications,
   updateApplicationStatus,
 } from '@/lib/applications';
+import { useAuth } from '@/context/AuthContext';
 
 const FILTER_TABS: Array<'All' | ApplicationStatus> = ['All', 'Pending', 'Approved', 'Rejected'];
 
@@ -20,6 +21,7 @@ const STATUS_STYLES: Record<ApplicationStatus, string> = {
 };
 
 export default function ProfilePage() {
+  const { user, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'All' | ApplicationStatus>('All');
   const [applications, setApplications] = useState<ApplicationData[]>([]);
@@ -30,11 +32,24 @@ export default function ProfilePage() {
     let isMounted = true;
 
     const loadApplications = async () => {
+      if (authLoading) {
+        return;
+      }
+
+      if (!user) {
+        if (isMounted) {
+          setApplications([]);
+          setMessage('Sign in to view your profile and applications.');
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
         setLoading(true);
         setMessage('');
 
-        const nextApplications = await getApplications();
+        const nextApplications = await getApplications(user.email);
 
         if (isMounted) {
           setApplications(nextApplications);
@@ -55,7 +70,7 @@ export default function ProfilePage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [authLoading, user]);
 
   const activeApplicationsCount = applications.filter((item) => item.status === 'Pending').length;
   const acceptedApplicationsCount = applications.filter((item) => item.status === 'Approved').length;
@@ -94,15 +109,22 @@ export default function ProfilePage() {
 
           <div className="px-6 pb-8">
             <div className="-mt-14 flex flex-col items-center text-center">
-              <Image
-                src="https://i.pravatar.cc/160?img=12"
-                alt="Rahul profile"
-                width={112}
-                height={112}
-                className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-md"
-              />
-              <h1 className="mt-4 text-2xl font-bold text-slate-900">Rahul</h1>
-              <p className="mt-1 text-sm text-slate-500">rahul@example.com</p>
+              {user?.image ? (
+                <Image
+                  src={user.image}
+                  alt={`${user.name} profile`}
+                  width={112}
+                  height={112}
+                  className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-md"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-white bg-white text-3xl font-bold text-slate-700 shadow-md">
+                  {user?.name?.slice(0, 1).toUpperCase() ?? 'G'}
+                </div>
+              )}
+              <h1 className="mt-4 text-2xl font-bold text-slate-900">{user?.name ?? 'Guest user'}</h1>
+              <p className="mt-1 text-sm text-slate-500">{user?.email ?? 'Sign in to load your profile'}</p>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { Briefcase, Calendar, CheckCircle, Clock, DollarSign, ExternalLink, MapPin, Upload, X } from 'lucide-react';
 import { createApplication } from '@/lib/applications';
 import { JobData } from '@/lib/jobs';
+import { useAuth } from '@/context/AuthContext';
 
 type ApplicationFormData = {
   fullName: string;
@@ -27,12 +28,25 @@ const initialFormData: ApplicationFormData = {
 
 export default function JobDetailsClient({ job }: { job: JobData }) {
   const router = useRouter();
+  const { user } = useAuth();
   const [isApplyOpen, setIsApplyOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState<ApplicationFormData>(initialFormData);
   const [errors, setErrors] = useState<ApplicationFormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    setFormData((current) => ({
+      ...current,
+      fullName: current.fullName || user.name,
+      email: current.email || user.email,
+    }));
+  }, [user]);
 
   const handleFieldChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

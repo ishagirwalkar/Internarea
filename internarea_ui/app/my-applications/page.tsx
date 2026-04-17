@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { CheckCircle2, FileText } from 'lucide-react';
 import { ApplicationData, getApplications } from '@/lib/applications';
+import { useAuth } from '@/context/AuthContext';
 
 export default function MyApplicationsPage() {
+  const { user, isLoading: authLoading } = useAuth();
   const [applications, setApplications] = useState<ApplicationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -14,11 +16,24 @@ export default function MyApplicationsPage() {
     let isMounted = true;
 
     const loadApplications = async () => {
+      if (authLoading) {
+        return;
+      }
+
+      if (!user) {
+        if (isMounted) {
+          setApplications([]);
+          setMessage('Sign in to view your applications.');
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
         setLoading(true);
         setMessage('');
 
-        const nextApplications = await getApplications();
+        const nextApplications = await getApplications(user.email);
 
         if (isMounted) {
           setApplications(nextApplications);
@@ -39,7 +54,7 @@ export default function MyApplicationsPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [authLoading, user]);
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">

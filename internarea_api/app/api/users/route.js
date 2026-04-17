@@ -37,13 +37,12 @@ export async function POST(request) {
 
     await connectToDatabase();
 
-    const existingUser = await User.findOne({ email }).lean();
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return NextResponse.json(
-        { message: 'A user with this email already exists' },
-        { status: 409 },
-      );
+      existingUser.name = name;
+      await existingUser.save();
+      return NextResponse.json(existingUser);
     }
 
     const user = await User.create({ name, email });

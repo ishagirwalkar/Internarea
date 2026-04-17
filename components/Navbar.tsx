@@ -6,12 +6,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useRef, useEffect } from 'react';
 import { Search, Menu, X, LogOut, User } from 'lucide-react';
-
-interface User {
-  name: string;
-  email: string;
-  image?: string;
-}
+import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,8 +14,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  const [user, setUser] = useState<User | null>(null);
+  const { user, signIn, signOut } = useAuth();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -30,8 +24,8 @@ export default function Navbar() {
     setIsProfileOpen(!isProfileOpen);
   };
 
-  const handleLogin = () => {
-    setUser({
+  const handleLogin = async () => {
+    await signIn({
       name: 'Rahul',
       email: 'rahul@example.com',
       image: 'https://i.pravatar.cc/160?img=12',
@@ -42,7 +36,7 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    setUser(null);
+    signOut();
     setIsProfileOpen(false);
     setIsOpen(false);
   };
@@ -134,7 +128,7 @@ export default function Navbar() {
               <>
                 {/* Continue with Google Button */}
                 <button
-                  onClick={handleLogin}
+                  onClick={() => void handleLogin()}
                   className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg bg-white hover:bg-gray-100 transition"
                 >
                   <svg
@@ -287,7 +281,7 @@ export default function Navbar() {
               {!user ? (
                 <>
                   <button
-                    onClick={handleLogin}
+                    onClick={() => void handleLogin()}
                     className="w-full flex items-center justify-center gap-2 border border-gray-300 px-4 py-2 rounded-lg bg-white hover:bg-gray-100 transition"
                   >
                     <svg

@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { Briefcase, MapPin, Building2, Tag, Users, Gift, Calendar, Info } from 'lucide-react';
