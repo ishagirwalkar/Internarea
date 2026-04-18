@@ -4,8 +4,18 @@ import { connectToDatabase, getDatabaseMode } from '@/lib/mongodb';
 import { Application } from '@/lib/models/application';
 import { Internship } from '@/lib/models/internship';
 import { Job } from '@/lib/models/job';
+import { isAdminAuthenticated } from '@/lib/server/admin-session';
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json(
+      {
+        message: 'Admin authorization required',
+      },
+      { status: 401 },
+    );
+  }
+
   try {
     await connectToDatabase();
 

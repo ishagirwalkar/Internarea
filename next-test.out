@@ -1,0 +1,15 @@
+
+> internarea@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.8:3000
+- Environments: .env.local
+✓ Ready in 495ms
+
+ POST /api/admin/login 200 in 285ms (next.js: 224ms, application-code: 60ms)
+ POST /api/job 201 in 1922ms (next.js: 421ms, application-code: 1500ms)
+ POST /api/internship 201 in 56ms (next.js: 33ms, application-code: 23ms)
+ GET /admin/dashboard 200 in 2.1s (next.js: 480ms, proxy.ts: 90ms, application-code: 1502ms)
+ GET /admin/dashboard 200 in 189ms (next.js: 6ms, proxy.ts: 6ms, application-code: 177ms)

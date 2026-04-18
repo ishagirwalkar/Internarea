@@ -30,6 +30,7 @@
   },
   "include": [
     "next-env.d.ts",
+    "**/*.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.mts",
@@ -38,6 +39,10 @@
   ],
   "exclude": [
     "node_modules",
-    ".next"
+    ".next",
+    "tsconfig.tsbuildinfo",
+    "interare_ui",
+    "internarea_api/app",
+    "internarea_ui/app"
   ]
 }

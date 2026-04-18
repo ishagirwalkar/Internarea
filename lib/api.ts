@@ -21,13 +21,7 @@ function shouldUseSameOrigin(path: string) {
     return false;
   }
 
-  const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-
-  if (!configuredUrl) {
-    return true;
-  }
-
-  return configuredUrl.replace(/\/+$/, '') === DEFAULT_API_URL;
+  return true;
 }
 
 export function apiUrl(path: string) {
@@ -44,6 +38,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   const response = await fetch(apiUrl(path), {
     ...init,
     cache: init.cache ?? 'no-store',
+    credentials: init.credentials ?? 'include',
     headers: {
       ...(init.body ? { 'Content-Type': 'application/json' } : {}),
       ...(init.headers ?? {}),

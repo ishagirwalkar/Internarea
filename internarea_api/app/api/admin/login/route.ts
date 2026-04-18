@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { createAdminSessionCookie } from '@/lib/server/admin-session';
+
 const adminUsername = process.env.ADMIN_USERNAME ?? 'admin';
 const adminPassword = process.env.ADMIN_PASSWORD ?? 'admin';
 
@@ -32,10 +34,13 @@ export async function POST(request: NextRequest) {
   }
 
   if (username === adminUsername && password === adminPassword) {
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: 'Login successfully',
     });
+
+    response.cookies.set(createAdminSessionCookie(username));
+    return response;
   }
 
   return NextResponse.json(

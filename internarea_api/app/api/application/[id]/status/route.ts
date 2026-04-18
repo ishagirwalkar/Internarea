@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { Application } from '@/lib/models/application';
+import { isAdminAuthenticated } from '@/lib/server/admin-session';
 
 type RouteContext = {
   params: Promise<{
@@ -21,6 +22,13 @@ const normalizeStatus = (value: unknown) => {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
+    if (!isAdminAuthenticated(request)) {
+      return NextResponse.json(
+        { message: 'Admin authorization required' },
+        { status: 401 },
+      );
+    }
+
     const { id } = await context.params;
     const body = (await request.json()) as Record<string, unknown>;
 

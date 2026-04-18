@@ -1,4 +1,9 @@
-import { apiFetch } from './api';
+import 'server-only';
+
+import { connectToDatabase, getDatabaseMode } from '@/lib/mongodb';
+import { Application } from '@/lib/models/application';
+import { Internship } from '@/lib/models/internship';
+import { Job } from '@/lib/models/job';
 
 type AdminDashboardStats = {
   totalApplications: number;
@@ -12,7 +17,24 @@ type AdminDashboardStats = {
 
 export async function getAdminDashboardStats() {
   try {
-    return await apiFetch<AdminDashboardStats>('/api/admin/stats');
+    await connectToDatabase();
+
+    const [totalApplications, approvedApplications, pendingApplications, jobsCount, internshipsCount] = await Promise.all([
+      Application.countDocuments(),
+      Application.countDocuments({ status: 'approved' }),
+      Application.countDocuments({ status: 'pending' }),
+      Job.countDocuments(),
+      Internship.countDocuments(),
+    ]);
+
+    return {
+      totalApplications,
+      approvedApplications,
+      pendingApplications,
+      jobsCount,
+      internshipsCount,
+      databaseMode: getDatabaseMode(),
+    } satisfies AdminDashboardStats;
   } catch (error) {
     return {
       totalApplications: 0,
@@ -20,7 +42,7 @@ export async function getAdminDashboardStats() {
       pendingApplications: 0,
       jobsCount: 0,
       internshipsCount: 0,
-      databaseMode: 'disconnected',
+      databaseMode: getDatabaseMode(),
       message: error instanceof Error ? error.message : 'Failed to load admin stats',
     };
   }

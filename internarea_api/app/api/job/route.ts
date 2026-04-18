@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { Job } from '@/lib/models/job';
+import { isAdminAuthenticated } from '@/lib/server/admin-session';
 
 type JobPayload = {
 	title: string;
@@ -72,16 +73,38 @@ export async function GET() {
 
 export async function POST(request: Request) {
 	try {
+		if (!isAdminAuthenticated(request)) {
+			return NextResponse.json(
+				{ message: 'Admin authorization required' },
+				{ status: 401 },
+			);
+		}
+
 		const body = (await request.json()) as Record<string, unknown>;
+		const payload = buildPayload(body);
+
+		if (!payload.title || !payload.companyName || !payload.location || !payload.aboutJob) {
+			return NextResponse.json(
+				{ message: 'Missing required job fields' },
+				{ status: 400 },
+			);
+		}
+
+		if (!Number.isFinite(payload.numberOfOpenings) || payload.numberOfOpenings < 1) {
+			return NextResponse.json(
+				{ message: 'Number of openings must be at least 1' },
+				{ status: 400 },
+			);
+		}
 
 		await connectToDatabase();
-		const job = await Job.create(buildPayload(body));
+		const job = await Job.create(payload);
 
 		return NextResponse.json(job, { status: 201 });
 	} catch (error) {
 		return NextResponse.json(
 			{
-				message: 'Failed to create job',
+				message: error instanceof Error ? error.message : 'Failed to create job',
 				error: error instanceof Error ? error.message : 'Unknown error',
 			},
 			{ status: 400 },

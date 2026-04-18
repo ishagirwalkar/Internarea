@@ -1,18 +1,11 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect } from 'react';
-import { ChevronLeft, ChevronRight, MapPin, DollarSign, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSlider } from '@/context/SliderContext';
-
-type CardItem = {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  stipend: string;
-  duration: string;
-};
+import { getInternships, type InternshipData } from '@/lib/internships';
+import { getJobs, type JobData } from '@/lib/jobs';
+import JobCard from '@/internarea_ui/components/JobCard';
 
 const SLIDER_SLIDES = [
   {
@@ -46,108 +39,6 @@ const CATEGORIES = [
   'Media',
   'Design',
   'Data Science',
-];
-
-const INTERNSHIPS = [
-  {
-    id: 1,
-    title: 'Software Engineering Intern',
-    company: 'Google',
-    location: 'Mountain View, CA',
-    stipend: '₹60,000/month',
-    duration: '3 months',
-  },
-  {
-    id: 2,
-    title: 'Product Management Intern',
-    company: 'Microsoft',
-    location: 'Bangalore, India',
-    stipend: '₹55,000/month',
-    duration: '4 months',
-  },
-  {
-    id: 3,
-    title: 'Data Science Intern',
-    company: 'Amazon',
-    location: 'Seattle, WA',
-    stipend: '₹65,000/month',
-    duration: '3 months',
-  },
-  {
-    id: 4,
-    title: 'Frontend Developer Intern',
-    company: 'Meta',
-    location: 'San Francisco, CA',
-    stipend: '₹70,000/month',
-    duration: '3 months',
-  },
-  {
-    id: 5,
-    title: 'UX Design Intern',
-    company: 'Apple',
-    location: 'Cupertino, CA',
-    stipend: '₹50,000/month',
-    duration: '4 months',
-  },
-  {
-    id: 6,
-    title: 'DevOps Engineer Intern',
-    company: 'IBM',
-    location: 'Bangalore, India',
-    stipend: '₹52,000/month',
-    duration: '3 months',
-  },
-];
-
-const JOBS = [
-  {
-    id: 1,
-    title: 'Senior Software Engineer',
-    company: 'Google',
-    location: 'Mountain View, CA',
-    stipend: '$150,000-180,000/year',
-    duration: 'Full-time',
-  },
-  {
-    id: 2,
-    title: 'Product Manager',
-    company: 'Microsoft',
-    location: 'Bangalore, India',
-    stipend: '₹25-35 LPA',
-    duration: 'Full-time',
-  },
-  {
-    id: 3,
-    title: 'Data Scientist',
-    company: 'Amazon',
-    location: 'Seattle, WA',
-    stipend: '$160,000-190,000/year',
-    duration: 'Full-time',
-  },
-  {
-    id: 4,
-    title: 'Lead Frontend Engineer',
-    company: 'Meta',
-    location: 'San Francisco, CA',
-    stipend: '$175,000-220,000/year',
-    duration: 'Full-time',
-  },
-  {
-    id: 5,
-    title: 'Design Lead',
-    company: 'Apple',
-    location: 'Cupertino, CA',
-    stipend: '$140,000-170,000/year',
-    duration: 'Full-time',
-  },
-  {
-    id: 6,
-    title: 'Infrastructure Engineer',
-    company: 'IBM',
-    location: 'Bangalore, India',
-    stipend: '₹30-40 LPA',
-    duration: 'Full-time',
-  },
 ];
 
 const STATS = [
@@ -295,89 +186,89 @@ function CategoriesSection() {
   );
 }
 
-// Card Component
-function Card({ item, type = 'internship' }: { item: CardItem; type?: 'internship' | 'job' }) {
-  const detailsHref = type === 'job' ? `/jobs/${item.id}` : `/internships/${item.id}`;
-
-  return (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden group">
-      {/* Tag */}
-      <div className="bg-green-100 text-green-800 text-xs font-semibold px-4 py-2 inline-block m-4 rounded-full">
-        Actively Hiring
-      </div>
-
-      {/* Card Content */}
-      <div className="px-6 pb-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-          {item.title}
-        </h3>
-        <p className="text-gray-600 font-medium mb-4">{item.company}</p>
-
-        {/* Details Grid */}
-        <div className="space-y-3 mb-6 text-sm text-gray-700">
-          <div className="flex items-center gap-3">
-            <MapPin size={18} className="text-blue-600 flex-shrink-0" />
-            <span>{item.location}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <DollarSign size={18} className="text-green-600 flex-shrink-0" />
-            <span className="text-blue-600 font-semibold">{item.stipend}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Clock size={18} className="text-orange-600 flex-shrink-0" />
-            <span>{item.duration}</span>
-          </div>
-        </div>
-
-        {/* Buttons */}
-        <div>
-          <Link
-            href={detailsHref}
-            className="block w-full text-center border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-3 rounded-lg transition-colors duration-300 transform hover:translate-y-[-2px]"
-          >
-            View Details
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Internships Section
-function InternshipsSection() {
+function InternshipsSection({ internships, loading, error }: { internships: InternshipData[]; loading: boolean; error: string }) {
   return (
-    <section id="internships" className="px-4 py-16 md:py-20 scroll-mt-20">
+    <section
+      id="internships"
+      className="scroll-mt-20 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_24%),linear-gradient(180deg,_#f9fbfd_0%,_#eef3f8_100%)] px-4 py-16 md:py-20"
+    >
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center">
-          Latest Internships on InternArea
-        </h2>
+        {error ? (
+          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-6 py-4 text-sm text-rose-700 shadow-sm">
+            {error}
+          </div>
+        ) : null}
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {INTERNSHIPS.map((internship) => (
-            <Card key={internship.id} item={internship} type="internship" />
+        {loading ? (
+          <div className="rounded-xl border border-slate-200 bg-white/80 px-6 py-10 text-center text-sm text-slate-500 shadow-sm">
+            Loading internships...
+          </div>
+        ) : null}
+
+        {!loading ? <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {internships.map((internship) => (
+            <JobCard
+              key={internship.id}
+              id={`/internships/${internship.id}`}
+              title={internship.title}
+              company={internship.company}
+              location={internship.location}
+              compensation={internship.stipend}
+              duration={internship.duration}
+            />
           ))}
-        </div>
+        </div> : null}
+
+        {!loading && internships.length === 0 ? (
+          <div className="rounded-xl border border-slate-200 bg-white/80 px-6 py-10 text-center text-sm text-slate-500 shadow-sm">
+            No internships posted yet.
+          </div>
+        ) : null}
       </div>
     </section>
   );
 }
 
 // Jobs Section
-function JobsSection() {
+function JobsSection({ jobs, loading, error }: { jobs: JobData[]; loading: boolean; error: string }) {
   return (
-    <section id="jobs" className="px-4 py-16 md:py-20 bg-gray-50 scroll-mt-20">
+    <section
+      id="jobs"
+      className="scroll-mt-20 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.14),_transparent_28%),linear-gradient(180deg,_#f8fbff_0%,_#eef4f8_100%)] px-4 py-16 md:py-20"
+    >
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center">
-          Latest Jobs
-        </h2>
+        {error ? (
+          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-6 py-4 text-sm text-rose-700 shadow-sm">
+            {error}
+          </div>
+        ) : null}
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {JOBS.map((job) => (
-            <Card key={job.id} item={job} type="job" />
+        {loading ? (
+          <div className="rounded-xl border border-slate-200 bg-white/80 px-6 py-10 text-center text-sm text-slate-500 shadow-sm">
+            Loading jobs...
+          </div>
+        ) : null}
+
+        {!loading ? <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {jobs.map((job) => (
+            <JobCard
+              key={job.id}
+              id={`/jobs/${job.id}`}
+              title={job.title}
+              company={job.company}
+              location={job.location}
+              compensation={job.salary}
+              duration={job.duration}
+            />
           ))}
-        </div>
+        </div> : null}
+
+        {!loading && jobs.length === 0 ? (
+          <div className="rounded-xl border border-slate-200 bg-white/80 px-6 py-10 text-center text-sm text-slate-500 shadow-sm">
+            No jobs posted yet.
+          </div>
+        ) : null}
       </div>
     </section>
   );
@@ -408,12 +299,67 @@ function StatsSection() {
 
 // Main Page Component
 export default function Home() {
+  const [jobs, setJobs] = useState<JobData[]>([]);
+  const [internships, setInternships] = useState<InternshipData[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
+  const [internshipsLoading, setInternshipsLoading] = useState(true);
+  const [jobsError, setJobsError] = useState('');
+  const [internshipsError, setInternshipsError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadListings() {
+      try {
+        setJobsLoading(true);
+        setJobsError('');
+        const response = await getJobs();
+
+        if (!cancelled) {
+          setJobs(response.slice(0, 6));
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setJobsError(error instanceof Error ? error.message : 'Failed to load jobs.');
+        }
+      } finally {
+        if (!cancelled) {
+          setJobsLoading(false);
+        }
+      }
+
+      try {
+        setInternshipsLoading(true);
+        setInternshipsError('');
+        const response = await getInternships();
+
+        if (!cancelled) {
+          setInternships(response.slice(0, 6));
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setInternshipsError(error instanceof Error ? error.message : 'Failed to load internships.');
+        }
+      } finally {
+        if (!cancelled) {
+          setInternshipsLoading(false);
+        }
+      }
+    }
+
+    void loadListings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <main className="min-h-screen bg-white">
       <HeroSection />
       <CategoriesSection />
-      <InternshipsSection />
-      <JobsSection />
+      <InternshipsSection internships={internships} loading={internshipsLoading} error={internshipsError} />
+      <JobsSection jobs={jobs} loading={jobsLoading} error={jobsError} />
       <StatsSection />
     </main>
   );
