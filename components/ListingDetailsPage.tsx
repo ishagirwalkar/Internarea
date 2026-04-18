@@ -69,6 +69,19 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 		}));
 	}, [user]);
 
+	useEffect(() => {
+		if (!isApplyOpen) {
+			return;
+		}
+
+		const { overflow } = document.body.style;
+		document.body.style.overflow = 'hidden';
+
+		return () => {
+			document.body.style.overflow = overflow;
+		};
+	}, [isApplyOpen]);
+
 	const listingLower = listingType === 'job' ? 'job' : 'internship';
 	const listingPluralHref = listingType === 'job' ? '/jobs' : '/internships';
 
@@ -334,11 +347,12 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 			</div>
 
 			{isApplyOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+				<div className="fixed inset-0 z-50 overflow-y-auto">
 					<div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={handleCloseApply} />
+					<div className="flex min-h-full items-start justify-center p-4 sm:items-center">
 
-					<div className="relative z-10 w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
-						<div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+						<div className="relative z-10 flex max-h-[calc(100vh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+							<div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
 							<div>
 								<p className="text-sm font-medium text-blue-600">Application Form</p>
 								<h2 className="text-2xl font-bold text-slate-900">Apply for {listing.title}</h2>
@@ -353,7 +367,8 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 						</div>
 
 						{isSubmitted ? (
-							<div className="space-y-6 px-6 py-8 text-center">
+							<div className="overflow-y-auto px-6 py-8 text-center">
+								<div className="space-y-6">
 								<div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
 									<CheckCircle2 className="h-7 w-7" />
 								</div>
@@ -377,9 +392,10 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 										Close
 									</button>
 								</div>
+								</div>
 							</div>
 						) : (
-							<form onSubmit={handleSubmit} className="space-y-5 px-6 py-6">
+							<form onSubmit={handleSubmit} className="space-y-5 overflow-y-auto px-6 py-6">
 								{submitError && (
 									<div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
 										{submitError}
@@ -511,6 +527,7 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 								</div>
 							</form>
 						)}
+					</div>
 					</div>
 				</div>
 			)}

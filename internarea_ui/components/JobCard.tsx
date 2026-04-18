@@ -18,6 +18,8 @@ export default function JobCard({
 	compensation,
 	duration,
 }: JobCardProps) {
+	const detailHref = id.startsWith('/') ? id : `/jobs/${id}`;
+
 	return (
 		<article className="group flex h-full flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-md transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
 			<div className="mb-5">
@@ -51,7 +53,7 @@ export default function JobCard({
 			</div>
 
 			<Link
-				href={id}
+				href={detailHref}
 				className="mt-8 inline-flex w-full items-center justify-center rounded-lg border border-sky-200 px-4 py-3 text-sm font-semibold text-sky-700 transition-colors duration-300 hover:border-sky-500 hover:bg-blue-50"
 			>
 				View Details
