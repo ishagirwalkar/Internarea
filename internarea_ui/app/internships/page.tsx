@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import FiltersSidebar, { type FiltersSidebarValue } from '../../components/FilterSidebar';
 import JobCard from '../../components/JobCard';
+import { parseCompensationToAnnualLakhs } from '@/lib/listing-filters';
 import { getInternships, type InternshipData } from '../../lib/internships';
 
 const defaultFilters: FiltersSidebarValue = {
@@ -13,17 +14,6 @@ const defaultFilters: FiltersSidebarValue = {
   workFromHome: false,
   partTime: false,
 };
-
-function parseAnnualLakhs(compensation: string) {
-  const digits = compensation.replace(/[^\d]/g, '');
-
-  if (!digits) {
-    return 0;
-  }
-
-  const monthlySalary = Number(digits);
-  return (monthlySalary * 12) / 100000;
-}
 
 export default function InternshipsPage() {
   const [filters, setFilters] = useState<FiltersSidebarValue>(defaultFilters);
@@ -73,9 +63,11 @@ export default function InternshipsPage() {
         !filters.location || internship.location.toLowerCase().includes(filters.location.toLowerCase());
 
       const matchesExperience =
-        !filters.experience || internship.duration.toLowerCase().includes(filters.experience.toLowerCase());
+        !filters.experience ||
+        internship.duration.toLowerCase().includes(filters.experience.toLowerCase()) ||
+        internship.aboutInternship.toLowerCase().includes(filters.experience.toLowerCase());
 
-      const matchesSalary = parseAnnualLakhs(internship.stipend) <= filters.salary;
+      const matchesSalary = parseCompensationToAnnualLakhs(internship.stipend) <= filters.salary;
       const matchesWorkFromHome =
         !filters.workFromHome ||
         internship.location.toLowerCase().includes('remote') ||

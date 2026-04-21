@@ -2,6 +2,8 @@
 
 import { Funnel } from 'lucide-react';
 
+import { getActiveFilterCount } from '@/lib/listing-filters';
+
 export type FiltersSidebarValue = {
 	category: string;
 	location: string;
@@ -25,6 +27,8 @@ export default function FiltersSidebar({ value, onChange, onClear }: FiltersSide
 		});
 	};
 
+	const activeFilterCount = getActiveFilterCount(value);
+
 	return (
 		<aside className="w-72 rounded-xl bg-white p-5 shadow-md transition-shadow duration-300 hover:shadow-lg lg:w-80">
 			<div className="space-y-5">
@@ -34,12 +38,18 @@ export default function FiltersSidebar({ value, onChange, onClear }: FiltersSide
 							<Funnel className="h-4 w-4" />
 						</div>
 						<h2 className="text-lg font-semibold text-slate-900">Filters</h2>
+						{activeFilterCount > 0 ? (
+							<span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
+								{activeFilterCount} active
+							</span>
+						) : null}
 					</div>
 
 					<button
 						type="button"
 						onClick={onClear}
-						className="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700"
+						disabled={activeFilterCount === 0}
+						className="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700 disabled:cursor-not-allowed disabled:text-slate-400"
 					>
 						Clear all
 					</button>
@@ -89,7 +99,7 @@ export default function FiltersSidebar({ value, onChange, onClear }: FiltersSide
 					</div>
 
 					<div className="space-y-3">
-						<label className="flex items-center gap-2 text-sm text-slate-700">
+						<label className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${value.workFromHome ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-700'}`}>
 							<input
 								type="checkbox"
 								checked={value.workFromHome}
@@ -99,7 +109,7 @@ export default function FiltersSidebar({ value, onChange, onClear }: FiltersSide
 							<span>Work from home</span>
 						</label>
 
-						<label className="flex items-center gap-2 text-sm text-slate-700">
+						<label className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${value.partTime ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-700'}`}>
 							<input
 								type="checkbox"
 								checked={value.partTime}
@@ -113,7 +123,7 @@ export default function FiltersSidebar({ value, onChange, onClear }: FiltersSide
 					<div>
 						<div className="mb-3 flex items-center justify-between gap-3">
 							<label htmlFor="filter-salary" className="text-sm font-medium text-gray-600">
-								Annual Salary (₹ in lakhs)
+								Max annual salary (₹ in lakhs)
 							</label>
 							<span className="text-sm font-semibold text-slate-700">₹{value.salary}L</span>
 						</div>

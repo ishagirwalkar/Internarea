@@ -55,19 +55,52 @@ const buildPayload = (body: Record<string, unknown>): InternshipPayload => ({
   duration: getString(body.duration) || '3 months',
 });
 
+function getBackendBaseUrl() {
+  return (process.env.BACKEND_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+}
+
+async function fetchBackendInternships() {
+  const response = await fetch(`${getBackendBaseUrl()}/api/internship`, {
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  const data = (await response.json().catch(() => null)) as unknown;
+
+  if (!response.ok) {
+    const backendMessage =
+      typeof data === 'object' && data !== null && 'message' in data
+        ? String((data as { message?: string }).message || '')
+        : '';
+
+    throw new Error(backendMessage || 'Backend internship fetch failed');
+  }
+
+  return NextResponse.json(data);
+}
+
 export async function GET() {
   try {
     await connectToDatabase();
     const internships = await Internship.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json(internships);
   } catch (error) {
+    try {
+      return await fetchBackendInternships();
+    } catch (fallbackError) {
+      const primaryMessage = error instanceof Error ? error.message : 'Unknown error';
+      const fallbackMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown fallback error';
+
     return NextResponse.json(
       {
         message: 'Failed to fetch internships',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: `${primaryMessage}; backend fallback failed: ${fallbackMessage}`,
       },
       { status: 500 },
     );
+    }
   }
 }
 

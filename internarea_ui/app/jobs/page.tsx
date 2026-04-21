@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import FiltersSidebar, { type FiltersSidebarValue } from '../../components/FilterSidebar';
 import JobCard from '../../components/JobCard';
+import { parseCompensationToAnnualLakhs } from '@/lib/listing-filters';
 import { getJobs, type JobData } from '../../lib/jobs';
 
 const defaultFilters: FiltersSidebarValue = {
@@ -13,16 +14,6 @@ const defaultFilters: FiltersSidebarValue = {
   workFromHome: false,
   partTime: false,
 };
-
-function parseAnnualLakhs(compensation: string) {
-  const digits = compensation.replace(/[^\d]/g, '');
-
-  if (!digits) {
-    return 0;
-  }
-
-  return Number(digits) / 100000;
-}
 
 export default function JobsPage() {
   const [filters, setFilters] = useState<FiltersSidebarValue>(defaultFilters);
@@ -74,11 +65,12 @@ export default function JobsPage() {
       const matchesExperience =
         !filters.experience ||
         job.duration.toLowerCase().includes(filters.experience.toLowerCase()) ||
-        job.type.toLowerCase().includes(filters.experience.toLowerCase());
+        job.type.toLowerCase().includes(filters.experience.toLowerCase()) ||
+        job.description.toLowerCase().includes(filters.experience.toLowerCase());
 
-      const matchesSalary = parseAnnualLakhs(job.salary) <= filters.salary;
+      const matchesSalary = parseCompensationToAnnualLakhs(job.salary) <= filters.salary;
       const matchesWorkFromHome = !filters.workFromHome || job.remote;
-      const matchesPartTime = !filters.partTime || job.type === 'Part-time';
+      const matchesPartTime = !filters.partTime || job.type.toLowerCase() === 'part-time';
 
       return (
         matchesCategory &&
