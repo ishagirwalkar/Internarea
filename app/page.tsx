@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSlider } from '@/context/SliderContext';
 import { getInternships, type InternshipData } from '@/lib/internships';
 import { getJobs, type JobData } from '@/lib/jobs';
-import JobCard from '@/internarea_ui/components/JobCard';
+import JobCard from '@/components/JobCard';
 
 const SLIDER_SLIDES = [
   {

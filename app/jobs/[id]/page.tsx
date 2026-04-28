@@ -1,11 +1,11 @@
-import JobDetailsClient from '../../../internarea_ui/app/jobs/[id]/JobDetailsClient';
+import JobDetailsClient from './JobDetailsClient';
 
 export default async function JobDetailPage({
-	params,
+  params,
 }: {
-	params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }) {
-	const { id } = await params;
+  const { id } = await params;
 
-	return <JobDetailsClient id={id} />;
+  return <JobDetailsClient id={id} />;
 }

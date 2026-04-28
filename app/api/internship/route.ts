@@ -1,1 +1,0 @@
-export { GET, POST } from '../../../internarea_api/app/api/internship/route';

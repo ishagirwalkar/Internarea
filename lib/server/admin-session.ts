@@ -13,7 +13,7 @@ type RequestWithCookies = Request & {
 function getAdminSessionSecret() {
   return (
     process.env.ADMIN_SESSION_SECRET ||
-    `${process.env.ADMIN_USERNAME || 'admin'}:${process.env.ADMIN_PASSWORD || 'admin'}`
+    `${process.env.ADMIN_USERNAME || 'admin'}:${process.env.ADMIN_PASSWORD || 'admin'}:internarea-admin-session`
   );
 }
 
@@ -43,9 +43,9 @@ function parseCookieHeader(cookieHeader: string | null) {
 }
 
 export function createAdminSessionToken(username: string) {
-  const payload = `${username}:${Date.now()}`;
-  const encodedPayload = encodePayload(payload);
-  return `${encodedPayload}${SESSION_SEPARATOR}${sign(payload)}`;
+  const normalizedUsername = String(username || '').trim();
+  const signature = sign(normalizedUsername);
+  return `${normalizedUsername}${SESSION_SEPARATOR}${signature}`;
 }
 
 export function verifyAdminSessionToken(token: string | null | undefined) {
@@ -53,15 +53,16 @@ export function verifyAdminSessionToken(token: string | null | undefined) {
     return false;
   }
 
-  const [encodedPayload, signature] = token.split(SESSION_SEPARATOR);
+  const lastDot = token.lastIndexOf('.');
+  const username = token.slice(0, lastDot).trim();
+  const signature = token.slice(lastDot + 1).trim();
 
-  if (!encodedPayload || !signature) {
+  if (!username || !signature) {
     return false;
   }
 
   try {
-    const payload = decodePayload(encodedPayload);
-    const expectedSignature = sign(payload);
+    const expectedSignature = sign(username);
 
     if (
       signature.length !== expectedSignature.length ||
@@ -70,14 +71,7 @@ export function verifyAdminSessionToken(token: string | null | undefined) {
       return false;
     }
 
-    const [, issuedAtValue] = payload.split(':');
-    const issuedAt = Number(issuedAtValue);
-
-    if (!Number.isFinite(issuedAt)) {
-      return false;
-    }
-
-    return Date.now() - issuedAt <= ADMIN_SESSION_MAX_AGE_SECONDS * 1000;
+    return true;
   } catch {
     return false;
   }

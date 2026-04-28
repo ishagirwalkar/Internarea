@@ -8,15 +8,14 @@ import {
 	signInWithEmailAndPassword,
 	signInWithPopup,
 	signOut as firebaseSignOut,
-	updateProfile,
-	type Auth,
 	type User,
+	updateProfile,
 } from 'firebase/auth';
 
 import { auth, isFirebaseConfigured } from '@/lib/firebase';
 
 type AuthUser = {
-	uid?: string;
+	uid: string;
 	name: string;
 	email: string;
 	image?: string;
@@ -25,18 +24,14 @@ type AuthUser = {
 type AuthContextValue = {
 	user: AuthUser | null;
 	isLoading: boolean;
-	isFirebaseEnabled: boolean;
-	signIn: (nextUser: AuthUser) => Promise<void>;
 	signInWithEmail: (email: string, password: string) => Promise<AuthUser>;
 	signInWithGoogle: () => Promise<AuthUser>;
-	signUpWithEmail: (name: string, email: string, password: string) => Promise<AuthUser>;
 	signOut: () => Promise<void>;
+	signUpWithEmail: (name: string, email: string, password: string) => Promise<AuthUser>;
 };
 
-const STORAGE_KEY = 'internarea-auth-user';
-const CREDENTIALS_STORAGE_KEY = 'internarea-auth-credentials';
-
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
 const googleProvider = new GoogleAuthProvider();
 
 googleProvider.setCustomParameters({
@@ -52,56 +47,10 @@ function toAuthUser(firebaseUser: User): AuthUser {
 	};
 }
 
-function setStoredUser(nextUser: AuthUser | null) {
-	if (nextUser) {
-		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
-		return;
-	}
-
-	window.localStorage.removeItem(STORAGE_KEY);
-}
-
-type StoredCredential = {
-	name: string;
-	email: string;
-	password: string;
-	image?: string;
-};
-
-function getStoredCredentials(): StoredCredential[] {
-	try {
-		const storedValue = window.localStorage.getItem(CREDENTIALS_STORAGE_KEY);
-		if (!storedValue) {
-			return [];
-		}
-
-		const parsedValue = JSON.parse(storedValue);
-		return Array.isArray(parsedValue) ? (parsedValue as StoredCredential[]) : [];
-	} catch {
-		window.localStorage.removeItem(CREDENTIALS_STORAGE_KEY);
-		return [];
-	}
-}
-
-function setStoredCredentials(credentials: StoredCredential[]) {
-	window.localStorage.setItem(CREDENTIALS_STORAGE_KEY, JSON.stringify(credentials));
-}
-
-function upsertStoredCredential(nextCredential: StoredCredential) {
-	const normalizedEmail = nextCredential.email.trim().toLowerCase();
-	const currentCredentials = getStoredCredentials().filter(
-		(credential) => credential.email.trim().toLowerCase() !== normalizedEmail,
-	);
-
-	setStoredCredentials([...currentCredentials, { ...nextCredential, email: normalizedEmail }]);
-}
-
-function requireAuthInstance(): Auth {
+function ensureFirebaseConfigured() {
 	if (!isFirebaseConfigured || !auth) {
-		throw new Error('Firebase authentication is not configured. Add NEXT_PUBLIC_FIREBASE_* variables to continue.');
+		throw new Error('Firebase is not configured. Add NEXT_PUBLIC_FIREBASE_* variables to your app environment.');
 	}
-
-	return auth;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -109,129 +58,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		if (isFirebaseConfigured && auth) {
-			const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
-				const resolvedUser = nextUser ? toAuthUser(nextUser) : null;
-				setUser(resolvedUser);
-				setStoredUser(resolvedUser);
-				setIsLoading(false);
-			});
-
-			return unsubscribe;
-		}
-
-		try {
-			const storedUser = window.localStorage.getItem(STORAGE_KEY);
-			if (storedUser) {
-				setUser(JSON.parse(storedUser) as AuthUser);
-			}
-		} catch {
-			window.localStorage.removeItem(STORAGE_KEY);
-		} finally {
+		if (!isFirebaseConfigured || !auth) {
 			setIsLoading(false);
+			return;
 		}
+
+		const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+			setUser(nextUser ? toAuthUser(nextUser) : null);
+			setIsLoading(false);
+		});
+
+		return unsubscribe;
 	}, []);
 
-	const signIn = async (nextUser: AuthUser) => {
+	const signUpWithEmail = async (name: string, email: string, password: string) => {
+		ensureFirebaseConfigured();
+		const credential = await createUserWithEmailAndPassword(auth, email, password);
+		await updateProfile(credential.user, { displayName: name.trim() });
+		const nextUser = toAuthUser({ ...credential.user, displayName: name.trim() } as User);
 		setUser(nextUser);
-		setStoredUser(nextUser);
-	};
-
-	const signInWithGoogle = async () => {
-		if (!isFirebaseConfigured) {
-			throw new Error('Google authentication is unavailable until NEXT_PUBLIC_FIREBASE_* variables are configured.');
-		}
-
-		const authInstance = requireAuthInstance();
-		const credential = await signInWithPopup(authInstance, googleProvider);
-		const nextUser = toAuthUser(credential.user);
-		setUser(nextUser);
-		setStoredUser(nextUser);
 		return nextUser;
 	};
 
 	const signInWithEmail = async (email: string, password: string) => {
-		if (!isFirebaseConfigured || !auth) {
-			const normalizedEmail = email.trim().toLowerCase();
-			const matchedCredential = getStoredCredentials().find(
-				(credential) => credential.email.trim().toLowerCase() === normalizedEmail && credential.password === password,
-			);
-
-			if (!matchedCredential) {
-				throw new Error('No matching local account found. Register first or add Firebase env variables for hosted authentication.');
-			}
-
-			const nextUser = {
-				name: matchedCredential.name,
-				email: matchedCredential.email,
-				image: matchedCredential.image,
-			};
-			setUser(nextUser);
-			setStoredUser(nextUser);
-			return nextUser;
-		}
-
-		const authInstance = requireAuthInstance();
-		const credential = await signInWithEmailAndPassword(authInstance, email, password);
+		ensureFirebaseConfigured();
+		const credential = await signInWithEmailAndPassword(auth, email, password);
 		const nextUser = toAuthUser(credential.user);
 		setUser(nextUser);
-		setStoredUser(nextUser);
 		return nextUser;
 	};
 
-	const signUpWithEmail = async (name: string, email: string, password: string) => {
-		if (!isFirebaseConfigured || !auth) {
-			const normalizedEmail = email.trim().toLowerCase();
-			const duplicateCredential = getStoredCredentials().find(
-				(credential) => credential.email.trim().toLowerCase() === normalizedEmail,
-			);
-
-			if (duplicateCredential) {
-				throw new Error('An account with this email already exists. Login instead or configure Firebase for hosted authentication.');
-			}
-
-			const nextUser = {
-				name: name.trim(),
-				email: normalizedEmail,
-			};
-			upsertStoredCredential({
-				name: nextUser.name,
-				email: normalizedEmail,
-				password,
-			});
-			setUser(nextUser);
-			setStoredUser(nextUser);
-			return nextUser;
-		}
-
-		const authInstance = requireAuthInstance();
-		const credential = await createUserWithEmailAndPassword(authInstance, email, password);
-		const trimmedName = name.trim();
-		await updateProfile(credential.user, { displayName: trimmedName });
-		const nextUser = {
-			uid: credential.user.uid,
-			name: trimmedName,
-			email: credential.user.email || email,
-			image: credential.user.photoURL || undefined,
-		};
-		setUser(nextUser);
-		setStoredUser(nextUser);
-		return nextUser;
-	};
-
-	const signOut = async () => {
+	const signInWithGoogle = async () => {
+		ensureFirebaseConfigured();
 		try {
-			if (isFirebaseConfigured && auth) {
-				await firebaseSignOut(auth);
+			const credential = await signInWithPopup(auth, googleProvider);
+			const nextUser = toAuthUser(credential.user);
+			setUser(nextUser);
+			return nextUser;
+		} catch (error: unknown) {
+			// Provide more detailed error messages
+			if (error instanceof Error) {
+				const errorCode = (error as { code?: string }).code;
+				
+				if (errorCode === 'auth/popup-closed-by-user') {
+					throw new Error('Sign-in was cancelled. Please try again.');
+				}
+				if (errorCode === 'auth/popup-blocked') {
+					throw new Error('Popup was blocked by your browser. Please allow popups for this site.');
+				}
+				if (errorCode === 'auth/cancelled-popup-request') {
+					throw new Error('Multiple popup requests detected. Please try again.');
+				}
+				if (errorCode === 'auth/operation-not-allowed') {
+					throw new Error('Google sign-in is not enabled. Please contact the administrator.');
+				}
+				if (errorCode === 'auth/unauthorized-domain') {
+					throw new Error('This domain is not authorized for OAuth operations.');
+				}
+				if (errorCode === 'auth/network-request-failed') {
+					throw new Error('Network error. Please check your internet connection and try again.');
+				}
+				throw error;
 			}
-		} finally {
-			setUser(null);
-			setStoredUser(null);
+			throw new Error('Google sign-in failed. Please try again.');
 		}
+	};
+
+	const signOut = () => {
+		setUser(null);
+		return firebaseSignOut(auth);
 	};
 
 	const value = useMemo(
-		() => ({ user, isLoading, isFirebaseEnabled: isFirebaseConfigured, signIn, signInWithEmail, signInWithGoogle, signUpWithEmail, signOut }),
+		() => ({ user, isLoading, signInWithEmail, signInWithGoogle, signOut, signUpWithEmail }),
 		[isLoading, user],
 	);
 

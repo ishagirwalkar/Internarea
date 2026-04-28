@@ -42,7 +42,6 @@
     ".next",
     "tsconfig.tsbuildinfo",
     "interare_ui",
-    "internarea_api/app",
     "internarea_ui/app"
   ]
 }

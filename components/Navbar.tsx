@@ -128,12 +128,12 @@ export default function Navbar() {
           </div>
 
           {/* Right Side - Auth Buttons & Profile */}
-          <div className="hidden md:flex md:items-center md:gap-4">
+          <div className="hidden md:flex md:items-center md:gap-3">
             {!user ? (
               <>
                 <Link
                   href="/register"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
                 >
                   Register
                 </Link>

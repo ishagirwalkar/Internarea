@@ -1,4 +1,4 @@
-export * from '../internarea_ui/lib/api';const DEFAULT_API_URL = '';
+const DEFAULT_API_URL = '';
 
 type ErrorResponse = {
   message?: string;
@@ -16,6 +16,18 @@ export function getApiBaseUrl() {
 
 function shouldUseSameOrigin(path: string) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  // Only use same origin for Next.js internal API routes (not for backend proxy)
+  // Check if the path matches known Next.js API routes
+  const nextJsApiRoutes = ['/api/admin', '/api/applications', '/api/application', '/api/users'];
+  if (nextJsApiRoutes.some(route => normalizedPath.startsWith(route))) {
+    return true;
+  }
+
+  // For internship and job APIs, always proxy to backend
+  if (normalizedPath.startsWith('/api/internship') || normalizedPath.startsWith('/api/job')) {
+    return false;
+  }
 
   if (typeof window === 'undefined' || !normalizedPath.startsWith('/api')) {
     return false;

@@ -1,1 +1,0 @@
-export { GET } from '../../../../internarea_api/app/api/admin/stats/route';

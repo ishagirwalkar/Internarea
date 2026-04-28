@@ -1,10 +1,36 @@
 import type { ComponentType, SVGProps } from 'react';
+import { Compass, Newspaper, Rocket, Target, Users } from 'lucide-react';
 
 import { GitHubIcon, LinkedInIcon, TwitterIcon } from '@/lib/social-icons';
 
 export type SiteContentSection = {
 	title: string;
 	body: string;
+};
+
+export type SiteFeatureCard = {
+	title: string;
+	description: string;
+	icon: ComponentType<SVGProps<SVGSVGElement>>;
+};
+
+export type SiteMilestone = {
+	year: string;
+	title: string;
+	description: string;
+};
+
+export type SiteNewsItem = {
+	publication: string;
+	headline: string;
+	summary: string;
+};
+
+export type SiteTeamMember = {
+	name: string;
+	role: string;
+	bio: string;
+	image: string;
 };
 
 export type SitePageContent = {
@@ -14,6 +40,10 @@ export type SitePageContent = {
 	description: string;
 	highlights: string[];
 	sections: SiteContentSection[];
+	vision?: SiteFeatureCard[];
+	milestones?: SiteMilestone[];
+	news?: SiteNewsItem[];
+	team?: SiteTeamMember[];
 	ctaLabel: string;
 	ctaHref: string;
 };
@@ -35,16 +65,88 @@ export const sitePages: Record<string, SitePageContent> = {
 		slug: 'about',
 		title: 'About',
 		eyebrow: 'Company',
-		description: 'InternArea helps students and early-career professionals discover internships and jobs with a faster, cleaner hiring experience.',
-		highlights: ['Trusted by growing teams', 'Focused on early-career talent', 'Built for faster discovery'],
+		description:
+			'InternArea is building a sharper path between ambition and opportunity for students, graduates, and early-career professionals who want credible roles without the clutter.',
+		highlights: ['Career discovery with clarity', 'Built for early talent', 'Designed for faster decisions'],
 		sections: [
 			{
-				title: 'What we do',
-				body: 'We bring internships and jobs into one focused platform so candidates can search, compare, and apply without wading through noise.',
+				title: 'Why we built InternArea',
+				body: 'Too many candidates begin their careers in fragmented systems that make discovery feel noisy, repetitive, and uncertain. InternArea was built to reduce that friction and create a more understandable space for internships, jobs, and early-career momentum.',
 			},
 			{
-				title: 'How we work',
-				body: 'Our product favors clarity, strong filters, direct applications, and transparent listings that help candidates make better decisions quickly.',
+				title: 'How the platform helps',
+				body: 'We focus on structured listings, cleaner filters, direct actions, and readable details so users can compare roles quickly and move from browsing to applying without unnecessary confusion.',
+			},
+		],
+		vision: [
+			{
+				title: 'Our vision',
+				description: 'Create the most reliable early-career platform for discovering internships and jobs with less noise, more transparency, and stronger decision support.',
+				icon: Target,
+			},
+			{
+				title: 'Our approach',
+				description: 'Design product experiences that are fast, understandable, and practical for users who are still shaping the first years of their professional path.',
+				icon: Compass,
+			},
+			{
+				title: 'What drives us',
+				description: 'We care about giving candidates confidence through clear information, credible listings, and a search experience that respects their time.',
+				icon: Rocket,
+			},
+		],
+		milestones: [
+			{
+				year: '2024',
+				title: 'InternArea concept launched',
+				description: 'The platform direction started with a simple goal: make early-career discovery cleaner, more focused, and more trustworthy.',
+			},
+			{
+				year: '2025',
+				title: 'Listings and search experience expanded',
+				description: 'We grew the product around clearer listings, stronger filtering, and direct application workflows for internships and jobs.',
+			},
+			{
+				year: '2026',
+				title: 'Employer and candidate experience matured',
+				description: 'The platform evolved to support richer content, better navigation, and a more credible brand presence across discovery and support flows.',
+			},
+		],
+		news: [
+			{
+				publication: 'Product Update',
+				headline: 'InternArea expands its platform pages and user journey experience',
+				summary: 'The platform now presents a more complete company story, better support content, and stronger navigation across search, profile, and application flows.',
+			},
+			{
+				publication: 'Career Tech Watch',
+				headline: 'Why focused early-career hiring platforms are gaining importance',
+				summary: 'As candidates demand clearer listings and better decision support, specialist platforms are becoming more useful than generic listing boards.',
+			},
+			{
+				publication: 'Company Note',
+				headline: 'InternArea sharpens its student-first product direction',
+				summary: 'The product roadmap continues to prioritize clarity, discovery quality, and accessible support for users entering the workforce.',
+			},
+		],
+		team: [
+			{
+				name: 'Aarav Mehta',
+				role: 'Product Lead',
+				bio: 'Aarav shapes the product direction around clarity, discoverability, and an experience that helps candidates move faster with confidence.',
+				image: 'https://i.pravatar.cc/320?img=12',
+			},
+			{
+				name: 'Riya Sharma',
+				role: 'Design Lead',
+				bio: 'Riya focuses on interface systems that make complex job and internship information easier to scan, compare, and trust.',
+				image: 'https://i.pravatar.cc/320?img=32',
+			},
+			{
+				name: 'Kabir Nair',
+				role: 'Engineering Lead',
+				bio: 'Kabir works on the platform architecture and core workflows that keep discovery, authentication, and application flows dependable.',
+				image: 'https://i.pravatar.cc/320?img=52',
 			},
 		],
 		ctaLabel: 'Explore opportunities',
