@@ -2,13 +2,12 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Building2, Check, ExternalLink, Search, X } from 'lucide-react';
+import { Building2, ExternalLink, Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   ApplicationData,
   ApplicationStatus,
   getApplications,
-  updateApplicationStatus,
 } from '@/lib/applications';
 import { useAuth } from '@/context/AuthContext';
 
@@ -90,16 +89,6 @@ export default function ProfilePage() {
       return matchesTab && matchesSearch;
     });
   }, [activeTab, applications, search]);
-
-  const updateStatus = async (id: string, status: ApplicationStatus) => {
-    try {
-      setMessage('');
-      const updatedApplication = await updateApplicationStatus(id, status);
-      setApplications((prev) => prev.map((item) => (item.id === id ? updatedApplication : item)));
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Failed to update application status');
-    }
-  };
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
@@ -238,22 +227,6 @@ export default function ProfilePage() {
                     <Link href="#" className="font-medium text-blue-600 hover:text-blue-700">
                       {application.listingType}
                     </Link>
-                    <button
-                      type="button"
-                      onClick={() => updateStatus(application.id, 'Approved')}
-                      className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2.5 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100"
-                    >
-                      <Check size={14} />
-                      Accept
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateStatus(application.id, 'Rejected')}
-                      className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2.5 py-1.5 font-medium text-rose-700 transition hover:bg-rose-100"
-                    >
-                      <X size={14} />
-                      Reject
-                    </button>
                   </div>
                 </article>
               ))
@@ -313,22 +286,6 @@ export default function ProfilePage() {
                           <Link href="#" className="font-medium text-blue-600 hover:text-blue-700">
                             {application.listingType}
                           </Link>
-                          <button
-                            type="button"
-                            onClick={() => updateStatus(application.id, 'Approved')}
-                            className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2.5 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100"
-                          >
-                            <Check size={14} />
-                            Accept
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => updateStatus(application.id, 'Rejected')}
-                            className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2.5 py-1.5 font-medium text-rose-700 transition hover:bg-rose-100"
-                          >
-                            <X size={14} />
-                            Reject
-                          </button>
                         </div>
                       </td>
                     </tr>

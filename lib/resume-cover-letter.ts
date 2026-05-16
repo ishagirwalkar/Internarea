@@ -99,10 +99,31 @@ function findProjects(lines: string[]) {
 	).slice(0, 3);
 }
 
+function escapeRegex(value: string) {
+	return value.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
+}
+
+function createSkillRegex(skill: string) {
+	const escapedSkill = escapeRegex(skill);
+	const needsSurroundingBoundary = /[^\w]/.test(skill);
+
+	if (needsSurroundingBoundary) {
+		return new RegExp(`(^|[^\\w])${escapedSkill}($|[^\\w])`, 'i');
+	}
+
+	return new RegExp(`\\b${escapedSkill}\\b`, 'i');
+}
+
 function findSkills(lines: string[], rawText: string) {
 	const sectionValues = collectSection(lines, ['skills', 'technical skills']);
 	const inlineSkills = sectionValues.flatMap((line) => line.split(/,|\||\/|•/)).map((value) => value.trim());
-	const detectedSkills = KNOWN_SKILLS.filter((skill) => new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\b`, 'i').test(rawText));
+	const detectedSkills = KNOWN_SKILLS.filter((skill) => {
+		try {
+			return createSkillRegex(skill).test(rawText);
+		} catch {
+			return false;
+		}
+	});
 
 	return unique([...inlineSkills, ...detectedSkills]).slice(0, 6);
 }

@@ -1,10 +1,11 @@
 'use client';
 
-import { Check, Search, X } from 'lucide-react';
+import { Check, Search, Trash2, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   ApplicationData,
   ApplicationStatus,
+  deleteApplication,
   getApplications,
   updateApplicationStatus,
 } from '@/lib/applications';
@@ -26,6 +27,7 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [updatingId, setUpdatingId] = useState('');
+  const [deletingId, setDeletingId] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -88,6 +90,27 @@ export default function ApplicationsPage() {
       setMessage(error instanceof Error ? error.message : 'Failed to update application status');
     } finally {
       setUpdatingId('');
+    }
+  };
+
+  const handleDeleteApplication = async (id: string) => {
+    const confirmDelete = window.confirm('Delete this application record? This action cannot be undone.');
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      setDeletingId(id);
+      setMessage('');
+
+      await deleteApplication(id);
+      setApplications((current) => current.filter((application) => application.id !== id));
+      setMessage('Application deleted successfully.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to delete application');
+    } finally {
+      setDeletingId('');
     }
   };
 
@@ -167,6 +190,8 @@ export default function ApplicationsPage() {
                     <td className="px-4 py-3 align-top">
                       <p className="font-medium text-slate-900">{application.applicantName}</p>
                       <p className="text-sm text-slate-600">{application.applicantEmail}</p>
+                      <p className="text-sm text-slate-500">{application.phoneNumber}</p>
+                      <p className="text-sm text-slate-500">Resume: {application.resumeFileName}</p>
                     </td>
                     <td className="px-4 py-3 align-top text-sm text-slate-700">{application.appliedDate}</td>
                     <td className="px-4 py-3 align-top">
@@ -191,11 +216,20 @@ export default function ApplicationsPage() {
                         <button
                           type="button"
                           aria-label="Reject application"
-                          disabled={updatingId === application.id}
+                          disabled={updatingId === application.id || deletingId === application.id}
                           onClick={() => handleStatusUpdate(application.id, 'Rejected')}
                           className="rounded-md bg-red-100 p-2 text-red-700 transition hover:bg-red-200 disabled:opacity-60"
                         >
                           <X size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Delete application"
+                          disabled={updatingId === application.id || deletingId === application.id}
+                          onClick={() => handleDeleteApplication(application.id)}
+                          className="rounded-md bg-slate-100 p-2 text-slate-700 transition hover:bg-slate-200 disabled:opacity-60"
+                        >
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Application } from '@/lib/models/application';
 import { isAdminAuthenticated } from '@/lib/server/admin-session';
+import { sendApplicationStatusEmail } from '@/lib/email';
 
 type RouteContext = {
   params: Promise<{
@@ -43,11 +44,49 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ message: 'Application not found' }, { status: 404 });
     }
 
+    if (application.status === 'approved' || application.status === 'rejected') {
+      try {
+        await sendApplicationStatusEmail(application);
+      } catch (error) {
+        console.error('Failed to send application status email:', error instanceof Error ? error.message : error);
+      }
+    }
+
     return NextResponse.json(application);
   } catch (error) {
     return NextResponse.json(
       {
         message: 'Failed to update application status',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 400 },
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  try {
+    if (!isAdminAuthenticated(request)) {
+      return NextResponse.json(
+        { message: 'Admin authorization required' },
+        { status: 401 },
+      );
+    }
+
+    const { id } = await context.params;
+
+    await connectToDatabase();
+    const deletedApplication = await Application.findByIdAndDelete(id).lean();
+
+    if (!deletedApplication) {
+      return NextResponse.json({ message: 'Application not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Application deleted successfully' }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message: 'Failed to delete application',
         error: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 },

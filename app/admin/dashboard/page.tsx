@@ -29,7 +29,7 @@ const actionCards = [
     description: 'View and manage user accounts',
     icon: Users,
     iconStyle: 'bg-orange-100 text-orange-600',
-    href: '/admin/users',
+    href: '/admin/manage-users',
   },
   {
     title: 'Analytics',
@@ -56,7 +56,8 @@ export default async function AdminDashboardPage() {
   const approvedApplications = stats.approvedApplications;
   const pendingApplications = stats.pendingApplications;
   const conversionRate = totalApplications === 0 ? '0.00%' : `${((approvedApplications / totalApplications) * 100).toFixed(2)}%`;
-  const dataSourceLabel = stats.databaseMode === 'atlas' ? 'Live from database' : 'Database unavailable';
+  const dataSourceLabel = stats.databaseMode === 'atlas' ? 'Live from database' : 'Database available';
+  
 
   const statsCards = [
     {
@@ -92,22 +93,13 @@ export default async function AdminDashboardPage() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-600">Admin Dashboard</p>
             <h1 className="mt-2 text-3xl font-bold text-slate-900">Welcome back, Admin</h1>
-            <p className="mt-3 max-w-2xl text-sm text-slate-600">
-              Track platform performance and quickly jump into key management actions from one place.
-            </p>
+           
             {stats.message && stats.databaseMode !== 'atlas' && (
               <p className="mt-3 max-w-3xl rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                 {stats.message}
               </p>
             )}
           </div>
-
-          <Link
-            href="/admin"
-            className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-          >
-            Back to Login
-          </Link>
         </div>
 
         <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">

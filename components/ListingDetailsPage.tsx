@@ -20,7 +20,6 @@ import {
 import type { ListingDetail } from '../lib/sample-listings';
 import { createApplication } from '@/lib/applications';
 import { useAuth } from '@/context/AuthContext';
-import { extractResumeInsights, generateCoverLetter } from '../lib/resume-cover-letter';
 
 type ListingDetailsPageProps = {
 	listing: ListingDetail;
@@ -51,9 +50,7 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 	const [isApplyOpen, setIsApplyOpen] = useState(false);
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
-	const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
 	const [submitError, setSubmitError] = useState('');
-	const [generationError, setGenerationError] = useState('');
 	const [formData, setFormData] = useState<ApplicationFormData>(initialFormData);
 	const [errors, setErrors] = useState<ApplicationFormErrors>({});
 
@@ -111,31 +108,16 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 			...current,
 			resumeFile: undefined,
 		}));
-		setGenerationError('');
 
 		if (!resumeFile) {
 			return;
 		}
 
-		try {
-			setIsGeneratingCoverLetter(true);
-			const insights = await extractResumeInsights(resumeFile);
-			const generatedCoverLetter = generateCoverLetter({
-				candidateName: formData.fullName || user?.name || '',
-				listing,
-				insights,
-			});
-
-			setFormData((current) => ({
-				...current,
-				resumeFile,
-				coverLetter: generatedCoverLetter,
-			}));
-		} catch (error) {
-			setGenerationError(error instanceof Error ? error.message : 'Failed to generate cover letter from resume.');
-		} finally {
-			setIsGeneratingCoverLetter(false);
-		}
+		// Resume uploaded successfully - no automatic cover letter generation
+		setFormData((current) => ({
+			...current,
+			resumeFile,
+		}));
 	};
 
 	const validateForm = () => {
@@ -206,16 +188,13 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 		setIsApplyOpen(true);
 		setIsSubmitted(false);
 		setSubmitError('');
-		setGenerationError('');
 	};
 
 	const handleCloseApply = () => {
 		setIsApplyOpen(false);
 		setIsSubmitted(false);
 		setSubmitting(false);
-		setIsGeneratingCoverLetter(false);
 		setSubmitError('');
-		setGenerationError('');
 		setErrors({});
 		setFormData({
 			...initialFormData,
@@ -402,12 +381,6 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 									</div>
 								)}
 
-								{generationError && (
-									<div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-										{generationError}
-									</div>
-								)}
-
 								<div className="grid gap-5 md:grid-cols-2">
 									<div>
 										<label htmlFor="fullName" className="mb-2 block text-sm font-medium text-slate-700">
@@ -496,9 +469,8 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 										value={formData.coverLetter}
 										onChange={handleFieldChange}
 										className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-										placeholder="Your personalized cover letter will appear here after resume analysis"
+										placeholder="Tell us why you're interested in this position and what makes you a great fit"
 									/>
-									{isGeneratingCoverLetter && <p className="mt-2 text-sm text-blue-600">Generating cover letter from resume...</p>}
 									{errors.coverLetter && <p className="mt-2 text-sm text-red-600">{errors.coverLetter}</p>}
 								</div>
 
@@ -519,7 +491,7 @@ export default function ListingDetailsPage({ listing, listingType }: ListingDeta
 									</button>
 									<button
 										type="submit"
-										disabled={submitting || isGeneratingCoverLetter}
+										disabled={submitting}
 										className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
 									>
 										{submitting ? 'Submitting...' : 'Submit'}

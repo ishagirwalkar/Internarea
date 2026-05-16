@@ -3,18 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Phone } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
-  const { signUpWithEmail, signInWithGoogle } = useAuth();
+  const { signInWithEmail, signInWithGoogle } = useAuth();
   
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
-    mobileNumber: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -31,68 +28,35 @@ export default function RegisterPage() {
     setError('');
 
     // Validation
-    if (!formData.firstName.trim()) {
-      setError('Please enter your first name');
-      return;
-    }
-
-    if (!formData.lastName.trim()) {
-      setError('Please enter your last name');
-      return;
-    }
-
     if (!formData.email.trim()) {
       setError('Please enter your email address');
       return;
     }
 
-    if (!formData.mobileNumber.trim()) {
-      setError('Please enter your mobile number');
-      return;
-    }
-
-    // Validate mobile number (basic validation - 10 digits)
-    const mobileRegex = /^\d{10}$/;
-    if (!mobileRegex.test(formData.mobileNumber.replace(/\D/g, ''))) {
-      setError('Please enter a valid 10-digit mobile number');
-      return;
-    }
-
     if (!formData.password) {
-      setError('Please create a password');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError('Please enter your password');
       return;
     }
 
     try {
       setIsLoading(true);
-      await signUpWithEmail(
-        formData.firstName,
-        formData.lastName,
-        formData.email,
-        formData.password,
-        formData.mobileNumber
-      );
+      await signInWithEmail(formData.email, formData.password);
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials and try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
       setError('');
       await signInWithGoogle();
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Google sign-up failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Google sign-in failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -108,16 +72,16 @@ export default function RegisterPage() {
               <span className="text-white font-bold text-xl">I</span>
             </div>
           </Link>
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">Create your account</h1>
-          <p className="mt-2 text-gray-600">Join thousands of students finding internships</p>
+          <h1 className="mt-4 text-2xl font-bold text-gray-900">Welcome back</h1>
+          <p className="mt-2 text-gray-600">Sign in to find your dream internship</p>
         </div>
 
-        {/* Register Card */}
+        {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-          {/* Google Sign Up Button */}
+          {/* Google Sign In Button */}
           <button
             type="button"
-            onClick={handleGoogleSignUp}
+            onClick={handleGoogleSignIn}
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -147,52 +111,8 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Register Form */}
+          {/* Login Form */}
           <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
-            {/* First Name Input */}
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                First Name
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  autoComplete="off"
-                  placeholder="Enter your first name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-              </div>
-            </div>
-
-            {/* Last Name Input */}
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  autoComplete="off"
-                  placeholder="Enter your last name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-              </div>
-            </div>
-
             {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -206,33 +126,10 @@ export default function RegisterPage() {
                   id="email"
                   name="email"
                   type="email"
-                  autoComplete="off"
+                  autoComplete="email"
                   placeholder="Enter your email address"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-              </div>
-            </div>
-
-            {/* Mobile Number Input */}
-            <div>
-              <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                Mobile Number
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="mobileNumber"
-                  name="mobileNumber"
-                  type="tel"
-                  autoComplete="off"
-                  placeholder="Enter your 10-digit mobile number"
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  maxLength={10}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 />
               </div>
@@ -251,8 +148,8 @@ export default function RegisterPage() {
                   id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  placeholder="Create a password"
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -271,6 +168,13 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Forgot Password Link */}
+            <div className="flex justify-end">
+              <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -283,11 +187,11 @@ export default function RegisterPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Creating account...
+                  Signing in...
                 </span>
               ) : (
                 <>
-                  Create Account
+                  Sign In
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
@@ -296,18 +200,18 @@ export default function RegisterPage() {
 
           {/* Terms */}
           <p className="mt-4 text-xs text-center text-gray-500">
-            By creating an account, I agree to the{' '}
+            By signing in, you agree to the{' '}
             <Link href="/terms" className="text-blue-600 hover:underline">Terms of Service</Link>
             {' '}and{' '}
             <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
           </p>
         </div>
 
-        {/* Login Link */}
+        {/* Register Link */}
         <p className="mt-6 text-center text-gray-600">
-          Already have an account?{' '}
-          <Link href="/login" className="text-blue-600 font-semibold hover:underline">
-            Sign in
+          Don't have an account?{' '}
+          <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+            Create one
           </Link>
         </p>
       </div>

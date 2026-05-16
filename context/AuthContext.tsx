@@ -18,7 +18,10 @@ import { auth, isFirebaseConfigured } from '@/lib/firebase';
 type AuthUser = {
 	uid?: string;
 	name: string;
+	firstName?: string;
+	lastName?: string;
 	email: string;
+	mobileNumber?: string;
 	image?: string;
 };
 
@@ -29,7 +32,7 @@ type AuthContextValue = {
 	signIn: (nextUser: AuthUser) => Promise<void>;
 	signInWithEmail: (email: string, password: string) => Promise<AuthUser>;
 	signInWithGoogle: () => Promise<AuthUser>;
-	signUpWithEmail: (name: string, email: string, password: string) => Promise<AuthUser>;
+	signUpWithEmail: (firstName: string, lastName: string, email: string, password: string, mobileNumber: string) => Promise<AuthUser>;
 	signOut: () => Promise<void>;
 };
 
@@ -63,8 +66,11 @@ function setStoredUser(nextUser: AuthUser | null) {
 
 type StoredCredential = {
 	name: string;
+	firstName: string;
+	lastName: string;
 	email: string;
 	password: string;
+	mobileNumber: string;
 	image?: string;
 };
 
@@ -179,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		return nextUser;
 	};
 
-	const signUpWithEmail = async (name: string, email: string, password: string) => {
+	const signUpWithEmail = async (firstName: string, lastName: string, email: string, password: string, mobileNumber: string) => {
 		if (!isFirebaseConfigured || !auth) {
 			const normalizedEmail = email.trim().toLowerCase();
 			const duplicateCredential = getStoredCredentials().find(
@@ -190,14 +196,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				throw new Error('An account with this email already exists. Login instead or configure Firebase for hosted authentication.');
 			}
 
+			const fullName = `${firstName.trim()} ${lastName.trim()}`;
 			const nextUser = {
-				name: name.trim(),
+				name: fullName,
+				firstName: firstName.trim(),
+				lastName: lastName.trim(),
 				email: normalizedEmail,
+				mobileNumber: mobileNumber.trim(),
 			};
 			upsertStoredCredential({
-				name: nextUser.name,
+				name: fullName,
+				firstName: firstName.trim(),
+				lastName: lastName.trim(),
 				email: normalizedEmail,
 				password,
+				mobileNumber: mobileNumber.trim(),
 			});
 			setUser(nextUser);
 			setStoredUser(nextUser);
@@ -206,12 +219,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 		const authInstance = requireAuthInstance();
 		const credential = await createUserWithEmailAndPassword(authInstance, email, password);
-		const trimmedName = name.trim();
-		await updateProfile(credential.user, { displayName: trimmedName });
+		const fullName = `${firstName.trim()} ${lastName.trim()}`;
+		await updateProfile(credential.user, { displayName: fullName });
 		const nextUser = {
 			uid: credential.user.uid,
-			name: trimmedName,
+			name: fullName,
+			firstName: firstName.trim(),
+			lastName: lastName.trim(),
 			email: credential.user.email || email,
+			mobileNumber: mobileNumber.trim(),
 			image: credential.user.photoURL || undefined,
 		};
 		setUser(nextUser);

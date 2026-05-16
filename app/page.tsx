@@ -30,17 +30,6 @@ const SLIDER_SLIDES = [
   },
 ];
 
-const CATEGORIES = [
-  'Big Brands',
-  'Work From Home',
-  'Part-time',
-  'MBA',
-  'Engineering',
-  'Media',
-  'Design',
-  'Data Science',
-];
-
 const STATS = [
   {
     id: 1,
@@ -151,33 +140,6 @@ function HeroSection() {
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Categories Section
-function CategoriesSection() {
-  return (
-    <section className="px-4 py-16 md:py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10 text-center">
-          Popular Categories
-        </h2>
-
-        {/* Horizontal Scrollable Categories */}
-        <div className="overflow-x-auto pb-4 hide-scrollbar">
-          <div className="flex gap-4 min-w-min px-4 md:px-0 md:justify-center md:flex-wrap">
-            {CATEGORIES.map((category, index) => (
-              <button
-                key={index}
-                className="px-6 py-3 rounded-full bg-white text-gray-700 font-medium border-2 border-gray-200 whitespace-nowrap transition-all duration-300 hover:bg-blue-500 hover:text-white hover:border-blue-500 transform hover:scale-105"
-              >
-                {category}
-              </button>
             ))}
           </div>
         </div>
@@ -357,7 +319,6 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white">
       <HeroSection />
-      <CategoriesSection />
       <InternshipsSection internships={internships} loading={internshipsLoading} error={internshipsError} />
       <JobsSection jobs={jobs} loading={jobsLoading} error={jobsError} />
       <StatsSection />

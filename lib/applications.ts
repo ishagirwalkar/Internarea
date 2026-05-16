@@ -17,6 +17,7 @@ export type ApplicationData = {
   status: ApplicationStatus;
 };
 
+
 export type CreateApplicationInput = {
   listingType: 'job' | 'internship';
   listingId: string;
@@ -107,4 +108,10 @@ export async function updateApplicationStatus(id: string, status: ApplicationSta
   });
 
   return mapApplication(updatedApplication);
+}
+
+export async function deleteApplication(id: string) {
+  await apiFetch(`/api/application/${id}`, {
+    method: 'DELETE',
+  });
 }

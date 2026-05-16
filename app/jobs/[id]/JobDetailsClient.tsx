@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import ListingDetailsPage from '../../../components/ListingDetailsPage';
 import { getJobById, type JobData } from '../../../lib/jobs';
-import { getSampleJobById } from '../../../lib/sample-listings';
+import { getSampleJobById, generateSampleJobFromId } from '../../../lib/sample-listings';
 
 type JobDetailsClientProps = {
   id: string;
@@ -34,6 +34,7 @@ function mapJobToListing(job: JobData) {
 
 export default function JobDetailsClient({ id }: JobDetailsClientProps) {
   const sampleJob = getSampleJobById(id);
+  const generatedSampleJob = generateSampleJobFromId(id);
   const [job, setJob] = useState<JobData | null>(null);
   const [loading, setLoading] = useState(!sampleJob);
   const [error, setError] = useState('');
@@ -56,7 +57,7 @@ export default function JobDetailsClient({ id }: JobDetailsClientProps) {
         }
       } catch (loadError) {
         if (!cancelled) {
-          setError(loadError instanceof Error ? loadError.message : 'Failed to load job details.');
+          setError('');
           setJob(null);
         }
       } finally {
@@ -77,6 +78,15 @@ export default function JobDetailsClient({ id }: JobDetailsClientProps) {
     return <ListingDetailsPage listing={sampleJob} listingType="job" />;
   }
 
+  if (job) {
+    return <ListingDetailsPage listing={mapJobToListing(job)} listingType="job" />;
+  }
+
+  // Use generated sample job if no data from backend
+  if (!loading && !error) {
+    return <ListingDetailsPage listing={generatedSampleJob} listingType="job" />;
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
@@ -87,40 +97,17 @@ export default function JobDetailsClient({ id }: JobDetailsClientProps) {
     );
   }
 
-  if (error) {
-    return (
-      <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl rounded-xl border border-rose-200 bg-rose-50 px-6 py-10 text-center shadow-md">
-          <p className="text-base font-semibold text-rose-700">{error}</p>
-          <Link
-            href="/jobs"
-            className="mt-4 inline-flex rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-          >
-            Back to Jobs
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
-  if (!job) {
-    return (
-      <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl rounded-xl border border-slate-200 bg-white px-6 py-10 text-center shadow-md">
-          <p className="text-base font-semibold text-slate-900">Job not found.</p>
-          <p className="mt-2 text-sm text-slate-600">
-            This job may have been removed or the link is invalid.
-          </p>
-          <Link
-            href="/jobs"
-            className="mt-4 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-          >
-            Browse jobs
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
-  return <ListingDetailsPage listing={mapJobToListing(job)} listingType="job" />;
+  return (
+    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl rounded-xl border border-slate-200 bg-white px-6 py-10 text-center shadow-md">
+        <p className="text-base font-semibold text-slate-900">Job details not available.</p>
+        <Link
+          href="/jobs"
+          className="mt-4 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Browse jobs
+        </Link>
+      </div>
+    </main>
+  );
 }

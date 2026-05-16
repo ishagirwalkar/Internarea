@@ -131,12 +131,14 @@ export default function Navbar() {
           <div className="hidden md:flex md:items-center md:gap-3">
             {!user ? (
               <>
-                <Link
-                  href="/register"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
-                >
-                  Register
-                </Link>
+                {!pathname.startsWith('/admin') && (
+                  <Link
+                    href="/register"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+                  >
+                    Register
+                  </Link>
+                )}
 
                 <Link
                   href="/admin"
@@ -267,13 +269,15 @@ export default function Navbar() {
             <div className="px-4 space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
               {!user ? (
                 <>
-                  <Link
-                    href="/register"
-                    onClick={() => setIsOpen(false)}
-                    className="block w-full text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                  >
-                    Register
-                  </Link>
+                  {!pathname.startsWith('/admin') && (
+                    <Link
+                      href="/register"
+                      onClick={() => setIsOpen(false)}
+                      className="block w-full text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    >
+                      Register
+                    </Link>
+                  )}
 
                   <Link
                     href="/admin"
